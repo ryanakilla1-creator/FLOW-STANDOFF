@@ -28,10 +28,21 @@ jobs:
           gradle-version: '8.9'
 
       - name: Install Android SDK packages
+        shell: bash
         run: |
+          set -e
           echo "ANDROID_HOME=$ANDROID_HOME"
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          SDKMANAGER="$(find "$ANDROID_HOME" -type f -name sdkmanager -print -quit)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "sdkmanager não foi encontrado dentro de $ANDROID_HOME"
+            find "$ANDROID_HOME" -maxdepth 4 -type d -print | head -80
+            exit 1
+          fi
+          echo "Usando sdkmanager: $SDKMANAGER"
+          SDKMANAGER_DIR="$(dirname "$SDKMANAGER")"
+          export PATH="$SDKMANAGER_DIR:$PATH"
+          yes | "$SDKMANAGER" --licenses
+          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Build APK
         run: gradle --no-daemon assembleDebug
