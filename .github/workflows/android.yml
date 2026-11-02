@@ -41,7 +41,9 @@ jobs:
           echo "Usando sdkmanager: $SDKMANAGER"
           SDKMANAGER_DIR="$(dirname "$SDKMANAGER")"
           export PATH="$SDKMANAGER_DIR:$PATH"
+          set +o pipefail
           yes | "$SDKMANAGER" --licenses
+          set -o pipefail
           "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Build APK
